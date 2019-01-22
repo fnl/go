@@ -9,7 +9,7 @@ type Token struct {
 
 // Tokenize text by generating Tokens.
 func Tokenize(text string) <-chan Token {
-	generator := make(chan Token)
+	var generator = make(chan Token)
 
 	go func() {
 		defer close(generator)
@@ -22,14 +22,17 @@ func Tokenize(text string) <-chan Token {
 			generator <- Token{text[last:], last, ""}
 		}
 	}()
+
 	return generator
 }
 
 // Split text into Tokens.
 func Split(text string) []Token {
-	result := make([]Token, 0, len(text)/5)
+	var result = make([]Token, 0, len(text)/5)
+
 	for token := range Tokenize(text) {
 		result = append(result, token)
 	}
+
 	return result
 }

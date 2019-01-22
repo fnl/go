@@ -8,15 +8,18 @@ import (
 // Subsplit the text and return the slice of all begin:end offset pairs
 func Subsplit(text string) [][2]int {
 	var result = make([][2]int, 0, 1)
+
 	for pair := range Subtokenize(text) {
 		result = append(result, pair)
 	}
+
 	return result
 }
 
 // Subtokenize the text by generating all begin:end offset pairs
 func Subtokenize(text string) <-chan [2]int {
-	gen := make(chan [2]int)
+	var gen = make(chan [2]int)
+
 	go func() {
 		defer close(gen)
 		s := state{
@@ -24,6 +27,7 @@ func Subtokenize(text string) <-chan [2]int {
 			textLen: len(text), tokenStart: len(text)}
 		s.run()
 	}()
+
 	return gen
 }
 
@@ -54,22 +58,21 @@ func (s *state) update(offset int, codepoint characterGroup) {
 	s.nextOffset = offset
 }
 
-
 // characterGroup is a concept much alike a Unicode category
 type characterGroup int
 
 const (
 	start       characterGroup = iota
-	lower        // 1
-	upper        // 2
-	number       // 3
-	terminal     // 4
-	hyphen       // 5
-	punctuation  // 6
-	apostrophe   // 7
-	symbol       // 8
-	space        // 9
-	end          // 10
+	lower                      // 1
+	upper                      // 2
+	number                     // 3
+	terminal                   // 4
+	hyphen                     // 5
+	punctuation                // 6
+	apostrophe                 // 7
+	symbol                     // 8
+	space                      // 9
+	end                        // 10
 )
 
 // alnumGroup returns true if that characterGroup is alphanumeric
