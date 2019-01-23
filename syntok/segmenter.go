@@ -8,14 +8,20 @@ func Segment(paragraph string) <-chan Sentence {
 
 	go func() {
 		defer close(generator)
-		var currentProduction = make(Sentence, 0, len(paragraph)/5)
+
+		var state = &segmenter{
+			beginSegmentation,
+			make([]Token, 0, 3),
+			make(Sentence, 0, len(paragraph)/5),
+			generator}
 
 		for token := range Tokenize(paragraph) {
-			currentProduction = append(currentProduction, token)
+			state.buffer = append(state.buffer, token)
+			evaluate(state)
 		}
 
-		if len(currentProduction) > 0 {
-			generator <- currentProduction
+		if len(state.production) > 0 {
+			generator <- state.production
 		}
 	}()
 
